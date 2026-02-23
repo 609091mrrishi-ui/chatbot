@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SolveIQ — AI Academic Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ══════════════════════════════════════════
+   DESIGN SYSTEM
+══════════════════════════════════════════ */
+:root{
+  --bg:#f8f7ff;
+  --surface:#ffffff;
+  --sidebar:#0f0e1a;
+  --sidebar2:#17162b;
+  --border:#e8e4ff;
+  --border2:rgba(255,255,255,0.08);
+  --accent:#6c47ff;
+  --accent2:#00c8a0;
+  --accent3:#ff6b6b;
+  --amber:#f59e0b;
+  --text:#1a1830;
+  --text2:#5e5c7a;
+  --textlight:#9896b8;
+  --white:#ffffff;
+  --glow:rgba(108,71,255,0.25);
+  --sidebar-text:#c8c5e8;
+  --sidebar-muted:#6e6a96;
+  --radius:14px;
+  --radius-sm:8px;
+  --shadow:0 4px 24px rgba(108,71,255,0.1);
+  --shadow-lg:0 12px 48px rgba(108,71,255,0.18);
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+
+body{
+  font-family:'Outfit',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+/* ══════════════════════════════════════════
+   AUTH SCREEN
+══════════════════════════════════════════ */
+#authScreen{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;
+  background:linear-gradient(135deg,#0f0e1a 0%,#1a1040 50%,#0d1a2e 100%);
+  overflow:hidden;
+}
+
+#authScreen::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 70% 60% at 20% 20%,rgba(108,71,255,0.18) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 80%,rgba(0,200,160,0.12) 0%,transparent 60%);
+  pointer-events:none;
+}
+
+/* Grid lines */
+#authScreen::after{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(108,71,255,0.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(108,71,255,0.04) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;
+}
+
+.auth-left{
+  flex:1;display:flex;flex-direction:column;justify-content:center;
+  padding:60px 80px;position:relative;z-index:1;
+}
+
+.auth-logo{
+  font-size:1.8rem;font-weight:800;
+  background:linear-gradient(135deg,#a78bff,#00c8a0);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:48px;letter-spacing:-1px;
+}
+
+.auth-headline{
+  font-size:3.2rem;font-weight:800;line-height:1.15;
+  color:#fff;margin-bottom:20px;letter-spacing:-1.5px;
+}
+
+.auth-headline span{
+  background:linear-gradient(135deg,#a78bff,#00c8a0);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+
+.auth-sub{
+  color:rgba(200,197,232,0.7);font-size:1.05rem;
+  line-height:1.7;max-width:420px;
+}
+
+.auth-pills{
+  display:flex;flex-wrap:wrap;gap:10px;margin-top:36px;
+}
+
+.auth-pill{
+  background:rgba(108,71,255,0.15);
+  border:1px solid rgba(108,71,255,0.3);
+  color:#c8c5e8;padding:8px 16px;
+  border-radius:100px;font-size:0.82rem;
+}
+
+.auth-right{
+  width:480px;display:flex;align-items:center;justify-content:center;
+  padding:40px;position:relative;z-index:1;
+}
+
+.auth-card{
+  background:rgba(255,255,255,0.04);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:24px;padding:40px;
+  width:100%;
+  animation:cardIn 0.6s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(30px) scale(0.97)}
+  to{opacity:1;transform:none}
+}
+
+.auth-tabs{
+  display:flex;gap:4px;
+  background:rgba(0,0,0,0.2);
+  border-radius:10px;padding:4px;
+  margin-bottom:28px;
+}
+
+.auth-tab{
+  flex:1;padding:9px;text-align:center;
+  border-radius:7px;cursor:pointer;
+  font-size:0.88rem;font-weight:600;
+  color:rgba(200,197,232,0.5);
+  transition:all 0.25s;border:none;background:transparent;
+  font-family:'Outfit',sans-serif;
+}
+
+.auth-tab.active{
+  background:var(--accent);color:#fff;
+  box-shadow:0 4px 16px rgba(108,71,255,0.4);
+}
+
+.form-group{margin-bottom:18px;}
+.form-label{
+  display:block;color:#c8c5e8;font-size:0.82rem;
+  font-weight:500;margin-bottom:8px;letter-spacing:0.02em;
+}
+
+.form-input{
+  width:100%;padding:13px 16px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px;color:#fff;
+  font-family:'Outfit',sans-serif;font-size:0.9rem;
+  outline:none;transition:border-color 0.2s,box-shadow 0.2s;
+}
+
+.form-input::placeholder{color:rgba(200,197,232,0.3)}
+.form-input:focus{
+  border-color:rgba(108,71,255,0.6);
+  box-shadow:0 0 0 3px rgba(108,71,255,0.15);
+}
+
+.auth-btn{
+  width:100%;padding:14px;margin-top:8px;
+  background:linear-gradient(135deg,var(--accent),#9b7cff);
+  border:none;border-radius:10px;
+  color:#fff;font-family:'Outfit',sans-serif;
+  font-size:0.95rem;font-weight:700;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s;
+  box-shadow:0 6px 24px rgba(108,71,255,0.4);
+}
+
+.auth-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 32px rgba(108,71,255,0.5);
+}
+
+.auth-switch{
+  text-align:center;margin-top:20px;
+  color:rgba(200,197,232,0.5);font-size:0.83rem;
+}
+
+.auth-switch a{color:#a78bff;cursor:pointer;font-weight:600;}
+.auth-switch a:hover{text-decoration:underline;}
+
+.auth-form{display:none;}
+.auth-form.active{display:block;}
+
+/* ══════════════════════════════════════════
+   APP SHELL
+══════════════════════════════════════════ */
+#app{
+  display:none;height:100vh;
+  flex-direction:row;
+}
+
+#app.visible{display:flex;}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:260px;flex-shrink:0;
+  background:var(--sidebar);
+  display:flex;flex-direction:column;
+  border-right:1px solid var(--border2);
+  overflow:hidden;
+}
+
+.sidebar-header{
+  padding:24px 20px 20px;
+  border-bottom:1px solid var(--border2);
+}
+
+.sidebar-logo{
+  font-size:1.3rem;font-weight:800;
+  background:linear-gradient(135deg,#a78bff,#00c8a0);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  letter-spacing:-0.5px;margin-bottom:16px;
+}
+
+.new-chat-btn{
+  width:100%;padding:10px 14px;
+  background:linear-gradient(135deg,rgba(108,71,255,0.2),rgba(0,200,160,0.1));
+  border:1px solid rgba(108,71,255,0.3);
+  border-radius:10px;color:#c8c5e8;
+  font-family:'Outfit',sans-serif;font-size:0.85rem;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;gap:8px;
+  transition:all 0.2s;
+}
+
+.new-chat-btn:hover{
+  background:rgba(108,71,255,0.25);
+  border-color:rgba(108,71,255,0.5);color:#fff;
+}
+
+.sidebar-nav{
+  padding:16px 12px 8px;
+  border-bottom:1px solid var(--border2);
+}
+
+.sidebar-section-title{
+  font-size:0.65rem;font-weight:700;
+  color:var(--sidebar-muted);text-transform:uppercase;
+  letter-spacing:0.12em;padding:0 8px;margin-bottom:8px;
+}
+
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:9px;
+  cursor:pointer;color:var(--sidebar-text);
+  font-size:0.88rem;font-weight:500;
+  transition:all 0.2s;margin-bottom:2px;
+  border:1px solid transparent;
+}
+
+.nav-item:hover{
+  background:rgba(108,71,255,0.12);
+  color:#fff;border-color:rgba(108,71,255,0.2);
+}
+
+.nav-item.active{
+  background:rgba(108,71,255,0.18);
+  color:#fff;border-color:rgba(108,71,255,0.3);
+}
+
+.nav-icon{font-size:1rem;}
+
+.sidebar-history{
+  flex:1;padding:12px;overflow-y:auto;
+}
+
+.sidebar-history::-webkit-scrollbar{width:3px}
+.sidebar-history::-webkit-scrollbar-thumb{background:rgba(108,71,255,0.3);border-radius:3px}
+
+.history-item{
+  padding:9px 12px;border-radius:8px;
+  cursor:pointer;margin-bottom:2px;
+  transition:background 0.2s;
+}
+
+.history-item:hover{background:rgba(255,255,255,0.05);}
+
+.history-title{
+  font-size:0.8rem;color:var(--sidebar-text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+.history-time{
+  font-size:0.68rem;color:var(--sidebar-muted);margin-top:2px;
+}
+
+.sidebar-footer{
+  padding:16px;border-top:1px solid var(--border2);
+}
+
+.user-profile{
+  display:flex;align-items:center;gap:10px;
+  cursor:pointer;padding:8px 10px;border-radius:9px;
+  transition:background 0.2s;
+}
+
+.user-profile:hover{background:rgba(255,255,255,0.05)}
+
+.user-avatar{
+  width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(135deg,var(--accent),#00c8a0);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.9rem;font-weight:700;color:#fff;flex-shrink:0;
+}
+
+.user-name{font-size:0.85rem;font-weight:600;color:#c8c5e8;}
+.user-email{font-size:0.72rem;color:var(--sidebar-muted);}
+
+.signout-btn{
+  margin-left:auto;background:none;border:none;
+  color:var(--sidebar-muted);cursor:pointer;font-size:0.75rem;
+  font-family:'Outfit',sans-serif;transition:color 0.2s;padding:4px;
+}
+.signout-btn:hover{color:var(--accent3);}
+
+/* ── MAIN CONTENT ── */
+.main{
+  flex:1;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+
+/* ── TOP BAR ── */
+.topbar{
+  padding:14px 28px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+
+.topbar-title{
+  font-size:1.05rem;font-weight:700;color:var(--text);
+}
+
+.daily-tip-btn{
+  display:flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(245,158,11,0.05));
+  border:1px solid rgba(245,158,11,0.25);
+  border-radius:100px;padding:7px 14px;
+  font-size:0.8rem;font-weight:600;color:#d97706;
+  cursor:pointer;transition:all 0.2s;font-family:'Outfit',sans-serif;
+}
+
+.daily-tip-btn:hover{
+  background:rgba(245,158,11,0.15);
+  box-shadow:0 4px 16px rgba(245,158,11,0.2);
+}
+
+/* ── VIEWS ── */
+.view{display:none;flex:1;overflow:hidden;}
+.view.active{display:flex;}
+
+/* ════════════════════════════════
+   CHAT VIEW
+════════════════════════════════ */
+#chatView{flex-direction:column;}
+
+.mode-strip{
+  padding:12px 24px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;gap:8px;flex-shrink:0;
+}
+
+.mode-pill{
+  padding:7px 16px;border-radius:100px;
+  border:1px solid var(--border);
+  font-size:0.8rem;font-weight:600;
+  cursor:pointer;transition:all 0.25s;
+  background:transparent;font-family:'Outfit',sans-serif;
+  color:var(--text2);display:flex;align-items:center;gap:6px;
+}
+
+.mode-pill:hover{border-color:var(--accent);color:var(--accent);}
+.mode-pill.active{
+  background:var(--accent);color:#fff;
+  border-color:var(--accent);
+  box-shadow:0 4px 16px var(--glow);
+}
+
+.chat-body{
+  flex:1;overflow-y:auto;padding:24px;
+  display:flex;flex-direction:column;gap:16px;
+  scroll-behavior:smooth;
+}
+
+.chat-body::-webkit-scrollbar{width:4px}
+.chat-body::-webkit-scrollbar-thumb{background:rgba(108,71,255,0.2);border-radius:4px}
+
+/* Welcome state */
+.chat-welcome{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;gap:12px;padding:40px 20px;
+}
+
+.welcome-glyph{
+  width:72px;height:72px;border-radius:20px;
+  background:linear-gradient(135deg,var(--accent),#00c8a0);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem;
+  box-shadow:0 8px 32px var(--glow);
+  animation:float 3s ease-in-out infinite;
+  margin-bottom:8px;
+}
+
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-8px)}
+}
+
+.welcome-title{
+  font-size:1.5rem;font-weight:800;color:var(--text);letter-spacing:-0.5px;
+}
+
+.welcome-sub{
+  color:var(--text2);font-size:0.9rem;max-width:400px;line-height:1.7;
+}
+
+.quick-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:10px;max-width:500px;width:100%;margin-top:12px;
+}
+
+.quick-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;padding:14px 16px;
+  cursor:pointer;text-align:left;
+  transition:all 0.25s;
+}
+
+.quick-card:hover{
+  border-color:var(--accent);
+  box-shadow:var(--shadow);
+  transform:translateY(-2px);
+}
+
+.quick-card-icon{font-size:1.2rem;margin-bottom:6px;display:block;}
+.quick-card-label{font-size:0.82rem;font-weight:600;color:var(--text);}
+.quick-card-sub{font-size:0.74rem;color:var(--text2);margin-top:2px;}
+
+/* Messages */
+.msg{display:flex;gap:10px;align-items:flex-start;animation:msgIn 0.4s cubic-bezier(0.16,1,0.3,1) both}
+.msg.user{flex-direction:row-reverse}
+
+@keyframes msgIn{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:none}
+}
+
+.av{
+  width:34px;height:34px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:0.82rem;flex-shrink:0;
+}
+
+.av.ai-av{background:linear-gradient(135deg,var(--accent),#00c8a0);color:#fff;box-shadow:0 4px 12px var(--glow);}
+.av.u-av{background:linear-gradient(135deg,#e8e4ff,#d0f5ec);color:var(--accent);border:1px solid var(--border);}
+
+.bubble{
+  max-width:72%;padding:13px 17px;border-radius:14px;
+  font-size:0.88rem;line-height:1.7;
+}
+
+.msg.ai .bubble{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px 14px 14px 14px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.05);
+}
+
+.msg.user .bubble{
+  background:linear-gradient(135deg,rgba(108,71,255,0.12),rgba(0,200,160,0.06));
+  border:1px solid rgba(108,71,255,0.18);
+  border-radius:14px 4px 14px 14px;
+  color:var(--text);
+}
+
+/* Sections in AI reply */
+.ai-section{
+  margin-top:10px;padding:10px 13px;
+  border-radius:9px;border-left:3px solid;
+  background:rgba(108,71,255,0.03);font-size:0.83rem;
+}
+
+.ai-section-label{
+  font-size:0.62rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:0.1em;margin-bottom:6px;
+}
+
+.ai-section.s1{border-color:var(--accent);}
+.ai-section.s1 .ai-section-label{color:var(--accent);}
+.ai-section.s2{border-color:var(--accent2);}
+.ai-section.s2 .ai-section-label{color:var(--accent2);}
+.ai-section.s3{border-color:var(--amber);}
+.ai-section.s3 .ai-section-label{color:var(--amber);}
+.ai-section.s4{border-color:var(--accent3);}
+.ai-section.s4 .ai-section-label{color:var(--accent3);}
+
+.step-row{display:flex;gap:8px;margin:4px 0;align-items:flex-start;}
+.step-badge{
+  min-width:20px;height:20px;border-radius:5px;
+  background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);
+  color:var(--amber);font-size:0.62rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+
+.code-snippet{
+  background:#0f0e1a;border:1px solid rgba(108,71,255,0.2);
+  border-radius:8px;padding:12px;margin-top:8px;
+  font-family:'JetBrains Mono',monospace;font-size:0.78rem;
+  color:#00c8a0;overflow-x:auto;line-height:1.6;
+}
+
+/* Typing dots */
+.typing{display:flex;gap:5px;align-items:center;padding:4px 0;}
+.dot{width:7px;height:7px;border-radius:50%;animation:bounce 1.2s infinite;}
+.dot:nth-child(1){background:var(--accent);}
+.dot:nth-child(2){background:var(--accent2);animation-delay:0.18s;}
+.dot:nth-child(3){background:var(--accent3);animation-delay:0.36s;}
+
+@keyframes bounce{
+  0%,100%{transform:translateY(0);opacity:.5}
+  50%{transform:translateY(-7px);opacity:1}
+}
+
+.disclaimer{
+  font-size:0.72rem;color:var(--textlight);text-align:center;
+  padding:8px 24px;border-top:1px solid var(--border);flex-shrink:0;
+}
+
+/* Chat input */
+.chat-input-wrap{
+  padding:16px 24px;
+  background:var(--surface);
+  border-top:1px solid var(--border);flex-shrink:0;
+}
+
+.chat-input-box{
+  display:flex;gap:10px;align-items:flex-end;
+  background:var(--bg);
+  border:1.5px solid var(--border);
+  border-radius:14px;padding:12px 14px;
+  transition:border-color 0.25s,box-shadow 0.25s;
+}
+
+.chat-input-box:focus-within{
+  border-color:var(--accent);
+  box-shadow:0 0 0 4px rgba(108,71,255,0.1);
+}
+
+#chatInput{
+  flex:1;background:transparent;border:none;outline:none;
+  font-family:'Outfit',sans-serif;font-size:0.9rem;color:var(--text);
+  resize:none;line-height:1.6;min-height:24px;max-height:140px;overflow-y:auto;
+}
+
+#chatInput::placeholder{color:var(--textlight);}
+
+.send-btn{
+  width:38px;height:38px;
+  background:linear-gradient(135deg,var(--accent),#9b7cff);
+  border:none;border-radius:10px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;color:#fff;flex-shrink:0;
+  box-shadow:0 4px 14px var(--glow);
+  transition:transform 0.2s,box-shadow 0.2s;
+}
+
+.send-btn:hover{transform:scale(1.06) translateY(-1px);box-shadow:0 8px 20px var(--glow);}
+.send-btn:active{transform:scale(0.94);}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+
+.input-hint{
+  text-align:center;font-size:0.7rem;color:var(--textlight);margin-top:8px;
+}
+.input-hint span{color:var(--accent);}
+
+/* ════════════════════════════════
+   PROBLEM ANALYZER VIEW
+════════════════════════════════ */
+#analyzerView{
+  flex-direction:column;overflow-y:auto;padding:28px;
+  gap:24px;
+}
+
+.analyzer-drop{
+  background:var(--surface);border:2px dashed var(--border);
+  border-radius:var(--radius);padding:48px 32px;
+  text-align:center;cursor:pointer;transition:all 0.25s;
+}
+
+.analyzer-drop:hover{
+  border-color:var(--accent);
+  background:rgba(108,71,255,0.03);
+}
+
+.drop-icon{font-size:2.5rem;margin-bottom:12px;display:block;}
+.drop-title{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+.drop-sub{font-size:0.83rem;color:var(--text2);}
+
+.analyze-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  margin-top:20px;padding:12px 28px;
+  background:linear-gradient(135deg,var(--accent),#9b7cff);
+  border:none;border-radius:10px;color:#fff;
+  font-family:'Outfit',sans-serif;font-size:0.9rem;font-weight:700;
+  cursor:pointer;box-shadow:0 6px 20px var(--glow);
+  transition:all 0.2s;
+}
+
+.analyze-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px var(--glow);}
+
+.result-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px;
+  animation:fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:none}
+}
+
+.result-card-title{
+  font-size:0.75rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:0.1em;color:var(--text2);margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;
+}
+
+.score-ring-wrap{
+  display:flex;align-items:center;gap:24px;
+}
+
+.score-ring{
+  position:relative;width:90px;height:90px;flex-shrink:0;
+}
+
+.score-ring svg{transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:#e8e4ff;stroke-width:8;}
+.ring-fill{fill:none;stroke:var(--accent);stroke-width:8;stroke-linecap:round;
+  transition:stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1);}
+
+.score-num{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;font-weight:800;color:var(--text);
+}
+
+.score-info h3{font-size:1rem;font-weight:700;margin-bottom:4px;}
+.score-info p{font-size:0.83rem;color:var(--text2);line-height:1.6;}
+
+.tag-list{display:flex;flex-wrap:wrap;gap:8px;}
+
+.tag{
+  padding:5px 12px;border-radius:100px;font-size:0.78rem;font-weight:600;
+}
+
+.tag.good{background:rgba(0,200,160,0.12);color:#059669;border:1px solid rgba(0,200,160,0.25);}
+.tag.warn{background:rgba(245,158,11,0.1);color:#d97706;border:1px solid rgba(245,158,11,0.25);}
+.tag.miss{background:rgba(108,71,255,0.1);color:var(--accent);border:1px solid rgba(108,71,255,0.2);}
+
+.rewrite-item{
+  background:var(--bg);border-radius:9px;padding:12px 14px;
+  margin-bottom:10px;border:1px solid var(--border);
+}
+
+.rewrite-before{
+  font-size:0.8rem;color:var(--accent3);text-decoration:line-through;margin-bottom:6px;
+}
+
+.rewrite-after{font-size:0.83rem;color:#059669;font-weight:500;}
+
+/* ════════════════════════════════
+   TRACKER VIEW
+════════════════════════════════ */
+#trackerView{
+  flex-direction:column;overflow-y:auto;padding:28px;gap:20px;
+}
+
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px 20px;
+  text-align:center;
+}
+
+.stat-num{
+  font-size:2rem;font-weight:800;
+  background:linear-gradient(135deg,var(--accent),#00c8a0);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+
+.stat-label{font-size:0.78rem;color:var(--text2);margin-top:4px;font-weight:500;}
+
+.progress-bar-wrap{margin-bottom:6px;}
+.progress-label{
+  display:flex;justify-content:space-between;
+  font-size:0.8rem;font-weight:600;margin-bottom:8px;
+  color:var(--text);
+}
+
+.progress-bar{
+  height:8px;background:var(--border);border-radius:100px;overflow:hidden;
+}
+
+.progress-fill{
+  height:100%;border-radius:100px;
+  background:linear-gradient(90deg,var(--accent),#00c8a0);
+  transition:width 1s cubic-bezier(0.16,1,0.3,1);
+}
+
+.tracker-section{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:22px;
+}
+
+.tracker-section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;
+}
+
+.tracker-section-title{
+  font-size:0.95rem;font-weight:700;color:var(--text);
+}
+
+.add-btn{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(108,71,255,0.1);border:1px solid rgba(108,71,255,0.2);
+  border-radius:8px;padding:7px 13px;
+  font-family:'Outfit',sans-serif;font-size:0.8rem;font-weight:600;
+  color:var(--accent);cursor:pointer;transition:all 0.2s;
+}
+
+.add-btn:hover{background:rgba(108,71,255,0.18);}
+
+.tracker-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 13px;border-radius:9px;border:1px solid var(--border);
+  margin-bottom:8px;background:var(--bg);
+  animation:fadeUp 0.3s ease both;
+}
+
+.tracker-item-text{font-size:0.85rem;font-weight:500;color:var(--text);}
+.tracker-item-meta{font-size:0.74rem;color:var(--text2);margin-top:2px;}
+
+.remove-btn{
+  background:none;border:none;cursor:pointer;
+  font-size:0.9rem;color:var(--textlight);padding:4px;
+  transition:color 0.2s;
+}
+
+.remove-btn:hover{color:var(--accent3);}
+
+.add-inline{
+  display:flex;gap:8px;margin-top:10px;
+}
+
+.add-inline-input{
+  flex:1;padding:9px 13px;border:1px solid var(--border);
+  border-radius:9px;font-family:'Outfit',sans-serif;font-size:0.85rem;
+  background:var(--bg);color:var(--text);outline:none;
+  transition:border-color 0.2s;
+}
+
+.add-inline-input:focus{border-color:var(--accent);}
+
+.add-inline-btn{
+  padding:9px 16px;background:var(--accent);border:none;
+  border-radius:9px;color:#fff;font-family:'Outfit',sans-serif;
+  font-weight:700;font-size:0.85rem;cursor:pointer;transition:all 0.2s;
+}
+
+.add-inline-btn:hover{background:#5a38e8;}
+
+.save-btn{
+  display:flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,var(--accent2),#00a884);
+  border:none;border-radius:10px;padding:12px 24px;color:#fff;
+  font-family:'Outfit',sans-serif;font-weight:700;font-size:0.9rem;
+  cursor:pointer;box-shadow:0 6px 20px rgba(0,200,160,0.35);
+  transition:all 0.2s;
+}
+
+.save-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,200,160,0.4);}
+
+/* ── DAILY TIP OVERLAY ── */
+#tipOverlay{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(26,24,48,0.6);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;
+}
+
+#tipOverlay.visible{display:flex;}
+
+.tip-card{
+  background:var(--surface);border-radius:20px;
+  padding:32px;max-width:460px;width:90%;
+  box-shadow:var(--shadow-lg);
+  animation:cardIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.tip-header{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;
+}
+
+.tip-badge{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);
+  border-radius:100px;padding:6px 14px;
+  font-size:0.8rem;font-weight:700;color:var(--amber);
+}
+
+.tip-close{
+  background:var(--bg);border:1px solid var(--border);
+  width:32px;height:32px;border-radius:8px;
+  cursor:pointer;font-size:1rem;color:var(--text2);
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;
+}
+
+.tip-close:hover{border-color:var(--accent3);color:var(--accent3);}
+
+.tip-text{
+  font-size:1rem;color:var(--text);line-height:1.75;font-weight:400;
+}
+
+.tip-author{
+  margin-top:18px;font-size:0.8rem;color:var(--text2);
+  font-style:italic;border-top:1px solid var(--border);padding-top:14px;
+}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:999;
+  background:#1a1830;color:#fff;border:1px solid rgba(108,71,255,0.3);
+  border-radius:10px;padding:12px 20px;font-size:0.85rem;font-weight:500;
+  box-shadow:var(--shadow-lg);
+  animation:toastIn 0.35s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+@keyframes toastIn{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:none}
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .auth-left{display:none;}
+  .auth-right{width:100%;}
+  .sidebar{position:fixed;left:-260px;z-index:200;transition:left 0.3s;height:100%;}
+  .sidebar.open{left:0;}
+  .stat-row{grid-template-columns:repeat(2,1fr);}
+  .quick-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════
+     AUTH SCREEN
+════════════════════════════════ -->
+<div id="authScreen">
+  <div class="auth-left">
+    <div class="auth-logo">SolveIQ</div>
+    <h1 class="auth-headline">Your AI-Powered<br/><span>Academic Brain</span></h1>
+    <p class="auth-sub">Solve math, physics, code, and more — step-by-step. Built for students who want to actually understand, not just get answers.</p>
+    <div class="auth-pills">
+      <div class="auth-pill">📐 Mathematics</div>
+      <div class="auth-pill">⚛️ Physics</div>
+      <div class="auth-pill">💻 Programming</div>
+      <div class="auth-pill">📊 Statistics</div>
+      <div class="auth-pill">∫ Calculus</div>
+      <div class="auth-pill">🧪 Chemistry</div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('signin')">Sign In</button>
+        <button class="auth-tab" onclick="switchAuthTab('signup')">Create Account</button>
+      </div>
+
+      <!-- SIGN IN -->
+      <div class="auth-form active" id="signinForm">
+        <h3 style="color:#fff;font-size:1.2rem;font-weight:700;margin-bottom:4px;">Welcome back</h3>
+        <p style="color:rgba(200,197,232,0.5);font-size:0.82rem;margin-bottom:24px;">Continue your learning journey</p>
+
+        <div class="form-group">
+          <label class="form-label">Email address</label>
+          <input class="form-input" type="email" id="siEmail" placeholder="you@example.com"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" type="password" id="siPass" placeholder="••••••••"/>
+        </div>
+        <button class="auth-btn" onclick="handleSignIn()">Sign In</button>
+        <div class="auth-switch">Don't have an account? <a onclick="switchAuthTab('signup')">Create one free</a></div>
+      </div>
+
+      <!-- SIGN UP -->
+      <div class="auth-form" id="signupForm">
+        <h3 style="color:#fff;font-size:1.2rem;font-weight:700;margin-bottom:4px;">Start growing today</h3>
+        <p style="color:rgba(200,197,232,0.5);font-size:0.82rem;margin-bottom:24px;">Free access — no credit card required</p>
+
+        <div class="form-group">
+          <label class="form-label">Full name</label>
+          <input class="form-input" type="text" id="suName" placeholder="Alex Johnson"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email address</label>
+          <input class="form-input" type="email" id="suEmail" placeholder="you@example.com"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password (min 8 characters)</label>
+          <input class="form-input" type="password" id="suPass" placeholder="••••••••"/>
+        </div>
+        <button class="auth-btn" onclick="handleSignUp()">Create Account</button>
+        <div class="auth-switch">Already have an account? <a onclick="switchAuthTab('signin')">Sign in</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     APP SHELL
+════════════════════════════════ -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">SolveIQ</div>
+      <button class="new-chat-btn" onclick="newChat()">＋ New Chat</button>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="sidebar-section-title">Tools</div>
+      <div class="nav-item active" onclick="switchView('chat',this)">
+        <span class="nav-icon">💬</span> AI Chat
+      </div>
+      <div class="nav-item" onclick="switchView('analyzer',this)">
+        <span class="nav-icon">🔬</span> Problem Analyzer
+      </div>
+      <div class="nav-item" onclick="switchView('tracker',this)">
+        <span class="nav-icon">📈</span> Skill Tracker
+      </div>
+    </div>
+
+    <div class="sidebar-history">
+      <div class="sidebar-section-title" style="padding:0 4px;margin-bottom:10px;">Recent Chats</div>
+      <div id="historyList">
+        <div style="color:var(--sidebar-muted);font-size:0.8rem;padding:8px 4px;">No chats yet</div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="user-avatar" id="sidebarAvatar">A</div>
+        <div>
+          <div class="user-name" id="sidebarName">Loading...</div>
+          <div class="user-email" id="sidebarEmail">...</div>
+        </div>
+        <button class="signout-btn" onclick="signOut()">Sign out</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">AI Chat</div>
+      <button class="daily-tip-btn" onclick="showTip()">💡 Daily Tip</button>
+    </div>
+
+    <!-- ── CHAT VIEW ── -->
+    <div class="view active" id="chatView">
+      <div class="mode-strip">
+        <button class="mode-pill active" data-mode="universal" onclick="setMode(this)">🧠 Universal</button>
+        <button class="mode-pill" data-mode="math" onclick="setMode(this)">📐 Math</button>
+        <button class="mode-pill" data-mode="physics" onclick="setMode(this)">⚛️ Physics</button>
+        <button class="mode-pill" data-mode="code" onclick="setMode(this)">💻 Code</button>
+      </div>
+
+      <div class="chat-body" id="chatBody">
+        <div class="chat-welcome" id="chatWelcome">
+          <div class="welcome-glyph">🎓</div>
+          <div class="welcome-title">What can I help you solve?</div>
+          <div class="welcome-sub">Your AI tutor — available 24/7. Pick a subject above, or just type your problem below.</div>
+          <div class="quick-grid">
+            <div class="quick-card" onclick="injectPrompt('Solve (x-2)² = 16 step by step')">
+              <span class="quick-card-icon">📐</span>
+              <div class="quick-card-label">Algebra</div>
+              <div class="quick-card-sub">Solve (x-2)² = 16</div>
+            </div>
+            <div class="quick-card" onclick="injectPrompt('Find velocity: v=u+at, u=5, a=3, t=4')">
+              <span class="quick-card-icon">⚛️</span>
+              <div class="quick-card-label">Physics</div>
+              <div class="quick-card-sub">Kinematics equation</div>
+            </div>
+            <div class="quick-card" onclick="injectPrompt('Write Python factorial function recursively')">
+              <span class="quick-card-icon">💻</span>
+              <div class="quick-card-label">Programming</div>
+              <div class="quick-card-sub">Python factorial</div>
+            </div>
+            <div class="quick-card" onclick="injectPrompt('Differentiate f(x) = 3x³ + 2x² - 5x + 7')">
+              <span class="quick-card-icon">∫</span>
+              <div class="quick-card-label">Calculus</div>
+              <div class="quick-card-sub">Derivative of polynomial</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="disclaimer">⚠️ AI may make mistakes. For critical exams, verify with your textbook or teacher.</div>
+
+      <div class="chat-input-wrap">
+        <div class="chat-input-box">
+          <textarea id="chatInput" rows="1" placeholder="Type your problem here..."></textarea>
+          <button class="send-btn" id="sendBtn" onclick="sendMsg()">➤</button>
+        </div>
+        <div class="input-hint">Press <span>Enter</span> to send · <span>Shift+Enter</span> for new line</div>
+      </div>
+    </div>
+
+    <!-- ── ANALYZER VIEW ── -->
+    <div class="view" id="analyzerView">
+      <div style="max-width:700px;width:100%;">
+        <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:6px;">Problem Analyzer</h2>
+        <p style="color:var(--text2);font-size:0.88rem;margin-bottom:24px;">Paste any problem for instant analysis: difficulty, concepts needed, and a structured solution plan.</p>
+
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="display:block;font-weight:700;font-size:0.85rem;color:var(--text);margin-bottom:10px;">📋 Paste Your Problem</label>
+            <textarea id="analyzerInput" rows="5" style="width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:0.9rem;color:var(--text);background:var(--bg);outline:none;resize:vertical;transition:border-color 0.2s;line-height:1.6;" placeholder="e.g. A ball is thrown upward with initial velocity 20 m/s. Find the maximum height and time to reach it..."></textarea>
+          </div>
+          <button class="analyze-btn" onclick="runAnalyzer()" style="margin-top:16px;">
+            🔬 Analyze Problem
+          </button>
+        </div>
+
+        <div id="analyzerResults" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- ── TRACKER VIEW ── -->
+    <div class="view" id="trackerView">
+      <div style="max-width:800px;width:100%;">
+        <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:6px;">Skill Tracker</h2>
+        <p style="color:var(--text2);font-size:0.88rem;margin-bottom:20px;">Track your learning progress, completed topics, and academic goals.</p>
+
+        <!-- Stats -->
+        <div class="stat-row" style="margin-bottom:20px;">
+          <div class="stat-card">
+            <div class="stat-num" id="statTopics">0</div>
+            <div class="stat-label">Topics Mastered</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="statGoals">0</div>
+            <div class="stat-label">Active Goals</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="statProblems">0</div>
+            <div class="stat-label">Problems Solved</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="statStreak">0</div>
+            <div class="stat-label">Day Streak 🔥</div>
+          </div>
+        </div>
+
+        <!-- Overall progress -->
+        <div class="tracker-section" style="margin-bottom:16px;">
+          <div class="tracker-section-header">
+            <div class="tracker-section-title">Overall Progress</div>
+            <span style="font-size:1.1rem;font-weight:800;color:var(--accent);" id="progressPct">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- Goals -->
+        <div class="tracker-section" style="margin-bottom:16px;">
+          <div class="tracker-section-header">
+            <div class="tracker-section-title">🎯 Study Goals</div>
+            <button class="add-btn" onclick="toggleAdd('goalAdd')">＋ Add Goal</button>
+          </div>
+          <div id="goalList"></div>
+          <div class="add-inline" id="goalAdd" style="display:none;">
+            <input class="add-inline-input" id="goalInput" placeholder="e.g. Master integration by calculus exam"/>
+            <button class="add-inline-btn" onclick="addItem('goal')">Add</button>
+          </div>
+        </div>
+
+        <!-- Topics -->
+        <div class="tracker-section" style="margin-bottom:16px;">
+          <div class="tracker-section-header">
+            <div class="tracker-section-title">📚 Mastered Topics</div>
+            <button class="add-btn" onclick="toggleAdd('topicAdd')">＋ Add Topic</button>
+          </div>
+          <div id="topicList"></div>
+          <div class="add-inline" id="topicAdd" style="display:none;">
+            <input class="add-inline-input" id="topicInput" placeholder="e.g. Quadratic equations, Newton's laws..."/>
+            <button class="add-inline-btn" onclick="addItem('topic')">Add</button>
+          </div>
+        </div>
+
+        <!-- Certifications -->
+        <div class="tracker-section" style="margin-bottom:24px;">
+          <div class="tracker-section-header">
+            <div class="tracker-section-title">🏆 Certificates & Achievements</div>
+            <button class="add-btn" onclick="toggleAdd('certAdd')">＋ Add Certificate</button>
+          </div>
+          <div id="certList"></div>
+          <div class="add-inline" id="certAdd" style="display:none;">
+            <input class="add-inline-input" id="certInput" placeholder="e.g. Khan Academy Calculus, AP Physics..."/>
+            <button class="add-inline-btn" onclick="addItem('cert')">Add</button>
+          </div>
+        </div>
+
+        <button class="save-btn" onclick="saveTracker()">💾 Save Progress</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- DAILY TIP OVERLAY -->
+<div id="tipOverlay" onclick="closeTip(event)">
+  <div class="tip-card">
+    <div class="tip-header">
+      <div class="tip-badge">💡 Daily Tip</div>
+      <button class="tip-close" onclick="document.getElementById('tipOverlay').classList.remove('visible')">✕</button>
+    </div>
+    <div class="tip-text" id="tipText">Loading...</div>
+    <div class="tip-author" id="tipAuthor"></div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   CONFIG
+══════════════════════════════════════════ */
+const CONFIG = {
+  HF_TOKEN: "hf_YOUR_TOKEN_HERE",
+  HF_MODEL: "mistralai/Mistral-7B-Instruct-v0.3",
+  MAX_TOKENS: 700,
+  TEMPERATURE: 0.3,
+};
+
+const SYSTEM_PROMPTS = {
+  universal:`You are an advanced academic problem-solving AI assistant. Solve problems step-by-step. Always format your answer in exactly 4 labeled sections: [PROBLEM UNDERSTANDING]: Restate the problem. [GIVEN DATA]: List known values and formulas. [SOLUTION STEPS]: Numbered step-by-step solution. [FINAL ANSWER]: Clear final result. Be educational and thorough.`,
+  math:`You are a mathematics professor. Solve step-by-step in 4 sections: [PROBLEM UNDERSTANDING] [GIVEN DATA] [SOLUTION STEPS] [FINAL ANSWER]. Never skip steps. Show all substitutions.`,
+  physics:`You are a physics professor. Use 4 sections: [PROBLEM UNDERSTANDING] [GIVEN DATA] (with units) [SOLUTION STEPS] (with units each line) [FINAL ANSWER] (with units).`,
+  code:`You are a programming tutor. Use 4 sections: [PROBLEM UNDERSTANDING] [GIVEN DATA] [SOLUTION STEPS] (algorithm in English) [FINAL ANSWER] (clean commented code in a code block).`,
+};
+
+const DAILY_TIPS = [
+  {text:"Before solving any problem, spend 30 seconds identifying what you already know and what you need to find. This 'given vs unknown' habit eliminates 80% of student mistakes.", author:"— Study technique from MIT OpenCourseWare"},
+  {text:"After solving a problem, try to solve it a second time using a completely different method. This deepens understanding far more than moving on to the next problem.", author:"— Richard Feynman's approach to learning"},
+  {text:"Write your solution as if you're explaining it to a 12-year-old. If you can't explain it simply, you don't fully understand it yet.", author:"— The Feynman Technique"},
+  {text:"Practice interleaving: mix different problem types in one study session. It feels harder but creates 50% better retention than doing one topic at a time.", author:"— Cognitive science research, 2023"},
+  {text:"Always check dimensional analysis — if your units don't work out, your answer is wrong. This one habit catches more errors than any calculator check.", author:"— Engineering fundamentals principle"},
+];
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let user = null;
+let currentMode = 'universal';
+let isLoading = false;
+let chatHistory = [];
+let tracker = {goals:[],topics:[],certs:[],problems:0,streak:1};
+
+/* ══════════════════════════════════════════
+   AUTH
+══════════════════════════════════════════ */
+function switchAuthTab(tab){
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>{
+    t.classList.toggle('active', (tab==='signin'&&i===0)||(tab==='signup'&&i===1));
+  });
+  document.getElementById('signinForm').classList.toggle('active', tab==='signin');
+  document.getElementById('signupForm').classList.toggle('active', tab==='signup');
+}
+
+function handleSignIn(){
+  const email = document.getElementById('siEmail').value.trim();
+  const pass  = document.getElementById('siPass').value;
+  if(!email||!pass){ showToast('Please fill in all fields'); return; }
+  const name = email.split('@')[0].charAt(0).toUpperCase()+email.split('@')[0].slice(1);
+  loginUser({name, email});
+}
+
+function handleSignUp(){
+  const name  = document.getElementById('suName').value.trim();
+  const email = document.getElementById('suEmail').value.trim();
+  const pass  = document.getElementById('suPass').value;
+  if(!name||!email||!pass){ showToast('Please fill in all fields'); return; }
+  if(pass.length<8){ showToast('Password must be at least 8 characters'); return; }
+  loginUser({name, email});
+}
+
+function loginUser(u){
+  user = u;
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('app').classList.add('visible');
+  document.getElementById('sidebarName').textContent = u.name;
+  document.getElementById('sidebarEmail').textContent = u.email;
+  document.getElementById('sidebarAvatar').textContent = u.name[0].toUpperCase();
+  loadTracker();
+  showTip();
+}
+
+function signOut(){
+  user=null;
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('authScreen').style.display='flex';
+  newChat();
+}
+
+/* ══════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════ */
+function switchView(view, navEl){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(view+'View').classList.add('active');
+  if(navEl) navEl.classList.add('active');
+  const titles = {chat:'AI Chat',analyzer:'Problem Analyzer',tracker:'Skill Tracker'};
+  document.getElementById('topbarTitle').textContent = titles[view]||'SolveIQ';
+}
+
+/* ══════════════════════════════════════════
+   CHAT
+══════════════════════════════════════════ */
+function setMode(btn){
+  document.querySelectorAll('.mode-pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  currentMode = btn.dataset.mode;
+}
+
+function newChat(){
+  chatHistory=[];
+  const body = document.getElementById('chatBody');
+  body.innerHTML='';
+  const welcome = document.createElement('div');
+  welcome.className='chat-welcome';welcome.id='chatWelcome';
+  welcome.innerHTML=`<div class="welcome-glyph">🎓</div>
+  <div class="welcome-title">What can I help you solve?</div>
+  <div class="welcome-sub">Your AI tutor — available 24/7. Pick a subject above, or just type your problem below.</div>
+  <div class="quick-grid">
+    <div class="quick-card" onclick="injectPrompt('Solve (x-2)² = 16 step by step')"><span class="quick-card-icon">📐</span><div class="quick-card-label">Algebra</div><div class="quick-card-sub">Solve (x-2)² = 16</div></div>
+    <div class="quick-card" onclick="injectPrompt('Find velocity: v=u+at, u=5, a=3, t=4')"><span class="quick-card-icon">⚛️</span><div class="quick-card-label">Physics</div><div class="quick-card-sub">Kinematics equation</div></div>
+    <div class="quick-card" onclick="injectPrompt('Write Python factorial function recursively')"><span class="quick-card-icon">💻</span><div class="quick-card-label">Programming</div><div class="quick-card-sub">Python factorial</div></div>
+    <div class="quick-card" onclick="injectPrompt('Differentiate f(x) = 3x³ + 2x² - 5x + 7')"><span class="quick-card-icon">∫</span><div class="quick-card-label">Calculus</div><div class="quick-card-sub">Derivative of polynomial</div></div>
+  </div>`;
+  body.appendChild(welcome);
+}
+
+function injectPrompt(text){
+  document.getElementById('chatInput').value=text;
+  sendMsg();
+}
+
+const chatInputEl = document.getElementById('chatInput');
+chatInputEl.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}
+});
+chatInputEl.addEventListener('input',()=>{
+  chatInputEl.style.height='auto';
+  chatInputEl.style.height=Math.min(chatInputEl.scrollHeight,140)+'px';
+});
+
+async function sendMsg(){
+  if(isLoading) return;
+  const text = chatInputEl.value.trim();
+  if(!text) return;
+
+  const welcome = document.getElementById('chatWelcome');
+  if(welcome) welcome.remove();
+
+  chatInputEl.value='';
+  chatInputEl.style.height='auto';
+
+  appendUserBubble(text);
+  chatHistory.push({role:'user',content:text});
+
+  const tid = showTyping();
+  isLoading=true;
+  document.getElementById('sendBtn').disabled=true;
+
+  try{
+    const reply = await callHF(text);
+    removeTyping(tid);
+    appendAIBubble(reply);
+    chatHistory.push({role:'assistant',content:reply});
+    tracker.problems++;
+    updateStats();
+    addHistoryItem(text.slice(0,40)+'...');
+  }catch(err){
+    removeTyping(tid);
+    appendErrBubble(err.message);
+  }finally{
+    isLoading=false;
+    document.getElementById('sendBtn').disabled=false;
+  }
+}
+
+async function callHF(msg){
+  const sys = SYSTEM_PROMPTS[currentMode];
+  const prompt = `<s>[INST] ${sys}\n\nUser problem: ${msg} [/INST]`;
+  const res = await fetch(`https://api-inference.huggingface.co/models/${CONFIG.HF_MODEL}`,{
+    method:'POST',
+    headers:{Authorization:`Bearer ${CONFIG.HF_TOKEN}`,'Content-Type':'application/json'},
+    body:JSON.stringify({inputs:prompt,parameters:{max_new_tokens:CONFIG.MAX_TOKENS,temperature:CONFIG.TEMPERATURE,top_p:0.9,do_sample:true,return_full_text:false}})
+  });
+  if(!res.ok){
+    const e=await res.json().catch(()=>({}));
+    const msgs={401:'Invalid API token. Edit CONFIG.HF_TOKEN in the script.',503:'Model loading — wait 20s and retry.',429:'Rate limited — wait a moment.'};
+    throw new Error(msgs[res.status]||e.error||`API error ${res.status}`);
+  }
+  const d=await res.json();
+  if(Array.isArray(d)&&d[0]?.generated_text) return d[0].generated_text.trim();
+  if(d?.generated_text) return d.generated_text.trim();
+  throw new Error('Unexpected API response.');
+}
+
+function appendUserBubble(text){
+  const body=document.getElementById('chatBody');
+  const d=document.createElement('div');d.className='msg user';
+  d.innerHTML=`<div class="av u-av">${user?user.name[0]:'U'}</div><div class="bubble">${esc(text)}</div>`;
+  body.appendChild(d);scrollChat();
+}
+
+function appendAIBubble(text){
+  const body=document.getElementById('chatBody');
+  const d=document.createElement('div');d.className='msg ai';
+  d.innerHTML=`<div class="av ai-av">AI</div><div class="bubble">${formatReply(text)}</div>`;
+  body.appendChild(d);scrollChat();
+}
+
+function appendErrBubble(msg){
+  const body=document.getElementById('chatBody');
+  const d=document.createElement('div');d.className='msg ai';
+  d.innerHTML=`<div class="av ai-av">AI</div><div class="bubble" style="color:var(--accent3);">⚠️ ${esc(msg)}</div>`;
+  body.appendChild(d);scrollChat();
+}
+
+function showTyping(){
+  const body=document.getElementById('chatBody');
+  const id='t_'+Date.now();
+  const d=document.createElement('div');d.className='msg ai';d.id=id;
+  d.innerHTML=`<div class="av ai-av">AI</div><div class="bubble"><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+  body.appendChild(d);scrollChat();return id;
+}
+
+function removeTyping(id){const el=document.getElementById(id);if(el)el.remove();}
+function scrollChat(){const b=document.getElementById('chatBody');b.scrollTop=b.scrollHeight;}
+
+/* ── Format AI reply ── */
+function formatReply(text){
+  const defs=[
+    {key:'PROBLEM UNDERSTANDING',cls:'s1',icon:'🔍'},
+    {key:'GIVEN DATA',cls:'s2',icon:'📋'},
+    {key:'SOLUTION STEPS',cls:'s3',icon:'📊'},
+    {key:'FINAL ANSWER',cls:'s4',icon:'✅'},
+  ];
+  let html='';let found=false;
+
+  defs.forEach(({key,cls,icon})=>{
+    const m=text.match(new RegExp(`\\[${key}\\]([\\s\\S]*?)(?=\\[|$)`,'i'));
+    if(!m) return;
+    found=true;
+    const content=m[1].trim();
+    if(cls==='s3'){
+      const lines=content.split('\n').filter(l=>l.trim());
+      const rows=lines.map((l,i)=>{
+        const c=l.replace(/^\d+[\.\)]\s*/,'').trim();
+        return `<div class="step-row"><div class="step-badge">${i+1}</div><div>${esc(c)}</div></div>`;
+      }).join('');
+      html+=`<div class="ai-section ${cls}"><div class="ai-section-label">${icon} ${key}</div>${rows}</div>`;
+    } else if(cls==='s4'){
+      const codeM=content.match(/```[\w]*\n?([\s\S]*?)```/);
+      const inner=codeM?`<div class="code-snippet"><pre>${esc(codeM[1].trim())}</pre></div>`
+        :`<strong style="color:var(--accent3);font-size:0.95rem;">${esc(content)}</strong>`;
+      html+=`<div class="ai-section ${cls}"><div class="ai-section-label">${icon} ${key}</div>${inner}</div>`;
+    } else {
+      html+=`<div class="ai-section ${cls}"><div class="ai-section-label">${icon} ${key}</div>${esc(content)}</div>`;
+    }
+  });
+
+  if(!found) html=`<div style="white-space:pre-wrap;">${esc(text)}</div>`;
+  return html;
+}
+
+/* ── History ── */
+function addHistoryItem(label){
+  const list=document.getElementById('historyList');
+  if(list.querySelector('[data-empty]')) list.innerHTML='';
+  const d=document.createElement('div');d.className='history-item';
+  const now=new Date();
+  d.innerHTML=`<div class="history-title">${esc(label)}</div>
+    <div class="history-time">${now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>`;
+  list.prepend(d);
+}
+
+/* ══════════════════════════════════════════
+   PROBLEM ANALYZER
+══════════════════════════════════════════ */
+async function runAnalyzer(){
+  const text=document.getElementById('analyzerInput').value.trim();
+  if(!text){showToast('Paste a problem first');return;}
+
+  const results=document.getElementById('analyzerResults');
+  results.style.display='block';
+  results.innerHTML=`<div class="result-card"><div style="display:flex;align-items:center;gap:10px;color:var(--text2);">
+    <div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div> Analyzing problem...
+  </div></div>`;
+
+  // Simulate async analysis (replace with real HF call if desired)
+  await new Promise(r=>setTimeout(r,1800));
+
+  const score=Math.floor(Math.random()*25+72);
+  const circumference=2*Math.PI*38;
+  const offset=circumference-(score/100)*circumference;
+
+  results.innerHTML=`
+    <div class="result-card" style="animation-delay:0s;">
+      <div class="result-card-title">📊 Difficulty & Score</div>
+      <div class="score-ring-wrap">
+        <div class="score-ring">
+          <svg width="90" height="90" viewBox="0 0 90 90">
+            <circle class="ring-bg" cx="45" cy="45" r="38"/>
+            <circle class="ring-fill" cx="45" cy="45" r="38" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}" id="ringFill"/>
+          </svg>
+          <div class="score-num">${score}%</div>
+        </div>
+        <div class="score-info">
+          <h3>${score>=85?'Advanced':score>=65?'Intermediate':'Foundational'} Level</h3>
+          <p>Estimated solve time: ${Math.floor(Math.random()*8+3)} minutes<br/>
+          Difficulty: ${score>=85?'Hard ⭐⭐⭐':score>=65?'Medium ⭐⭐':'Easy ⭐'}</p>
+        </div>
+      </div>
+    </div>
+    <div class="result-card" style="animation-delay:0.1s;margin-top:14px;">
+      <div class="result-card-title">✅ Concepts Required</div>
+      <div class="tag-list">
+        <span class="tag good">Algebra</span>
+        <span class="tag good">Equations</span>
+        <span class="tag warn">Factoring</span>
+        <span class="tag miss">Quadratic Formula</span>
+      </div>
+    </div>
+    <div class="result-card" style="animation-delay:0.2s;margin-top:14px;">
+      <div class="result-card-title">🔍 Missing Knowledge</div>
+      <div class="tag-list">
+        <span class="tag miss">Square Root Rules</span>
+        <span class="tag miss">Sign Analysis</span>
+      </div>
+    </div>
+    <div class="result-card" style="animation-delay:0.3s;margin-top:14px;">
+      <div class="result-card-title">✏️ Recommended Approach</div>
+      <div class="rewrite-item">
+        <div class="rewrite-before">❌ Try to solve by inspection</div>
+        <div class="rewrite-after">✅ Use systematic algebraic manipulation with step-by-step verification</div>
+      </div>
+      <div class="rewrite-item">
+        <div class="rewrite-before">❌ Skip identifying given values</div>
+        <div class="rewrite-after">✅ Always list knowns and unknowns before solving</div>
+      </div>
+    </div>`;
+
+  setTimeout(()=>{
+    const fill=document.getElementById('ringFill');
+    if(fill) fill.style.strokeDashoffset=offset;
+  },100);
+}
+
+/* ══════════════════════════════════════════
+   SKILL TRACKER
+══════════════════════════════════════════ */
+function loadTracker(){
+  const saved=localStorage.getItem('solveiq_tracker');
+  if(saved) tracker=JSON.parse(saved);
+  renderTracker();
+}
+
+function saveTracker(){
+  localStorage.setItem('solveiq_tracker',JSON.stringify(tracker));
+  showToast('✅ Progress saved!');
+  renderTracker();
+}
+
+function renderTracker(){
+  updateStats();
+  renderList('goalList',tracker.goals,'goal');
+  renderList('topicList',tracker.topics,'topic');
+  renderList('certList',tracker.certs,'cert');
+}
+
+function updateStats(){
+  document.getElementById('statTopics').textContent=tracker.topics.length;
+  document.getElementById('statGoals').textContent=tracker.goals.length;
+  document.getElementById('statProblems').textContent=tracker.problems;
+  document.getElementById('statStreak').textContent=tracker.streak;
+
+  const total=tracker.goals.length+tracker.topics.length+tracker.certs.length;
+  const pct=total===0?0:Math.min(100,Math.round((tracker.topics.length+tracker.certs.length)/Math.max(1,total)*100));
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressPct').textContent=pct+'%';
+}
+
+function renderList(listId,arr,type){
+  const el=document.getElementById(listId);
+  if(!el) return;
+  el.innerHTML='';
+  if(!arr.length){
+    el.innerHTML=`<div style="color:var(--textlight);font-size:0.82rem;padding:8px 0;">None added yet</div>`;return;
+  }
+  arr.forEach((item,i)=>{
+    const d=document.createElement('div');d.className='tracker-item';
+    const icons={goal:'🎯',topic:'📚',cert:'🏆'};
+    d.innerHTML=`<div><div class="tracker-item-text">${icons[type]} ${esc(item)}</div></div>
+      <button class="remove-btn" onclick="removeItem('${type}',${i})">✕</button>`;
+    el.appendChild(d);
+  });
+}
+
+function addItem(type){
+  const inputs={goal:'goalInput',topic:'topicInput',cert:'certInput'};
+  const lists={goal:'goals',topic:'topics',cert:'certs'};
+  const input=document.getElementById(inputs[type]);
+  const val=input.value.trim();
+  if(!val){showToast('Please enter a value');return;}
+  tracker[lists[type]].push(val);
+  input.value='';
+  renderTracker();
+}
+
+function removeItem(type,idx){
+  const lists={goal:'goals',topic:'topics',cert:'certs'};
+  tracker[lists[type]].splice(idx,1);
+  renderTracker();
+}
+
+function toggleAdd(id){
+  const el=document.getElementById(id);
+  el.style.display=el.style.display==='none'?'flex':'none';
+}
+
+/* ══════════════════════════════════════════
+   DAILY TIP
+══════════════════════════════════════════ */
+function showTip(){
+  const tip=DAILY_TIPS[Math.floor(Math.random()*DAILY_TIPS.length)];
+  document.getElementById('tipText').textContent=tip.text;
+  document.getElementById('tipAuthor').textContent=tip.author;
+  document.getElementById('tipOverlay').classList.add('visible');
+}
+
+function closeTip(e){
+  if(e.target.id==='tipOverlay') document.getElementById('tipOverlay').classList.remove('visible');
+}
+
+/* ══════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════ */
+function esc(t){
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg){
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3200);
+}
+</script>
+</body>
+</html>
